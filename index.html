@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hasiru Haadi — Coming Soon</title>
+<meta name="description" content="Hasiru Haadi is putting down roots. Sign up to be the first to know when we open.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,95 C10,80 10,20 50,5 C90,20 90,80 50,95 Z' fill='%233c5f3f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#0c130d;
+    --sky-top:#122018;
+    --sky-mid:#3f5b3a;
+    --sky-horizon:#f0c988;
+    --sky-horizon-2:#e2a15b;
+    --cream:#f7f1e2;
+    --cream-dim:rgba(247,241,226,.72);
+    --gold:#e3b165;
+    --gold-soft:rgba(227,177,101,.35);
+    --leaf-dark:#16281a;
+    --leaf-light:#3c5f3f;
+    --hill-far:#2c4234;
+    --hill-near:#182b1d;
+    --pot-dark:#5c3320;
+    --pot-light:#8a4f30;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    min-height:100svh;
+    background:var(--bg);
+    color:var(--cream);
+    font-family:'Jost', sans-serif;
+    overflow-x:hidden;
+  }
+
+  /* ---------- Scene: fixed, full-bleed backdrop behind the content ---------- */
+  .stage{ position:fixed; inset:0; z-index:0; overflow:hidden; }
+
+  .scene-scale{
+    position:absolute; inset:0;
+    transform:scale(1.06);
+    transition:transform 1.9s cubic-bezier(.16,.84,.3,1);
+    will-change:transform;
+  }
+  body.revealed .scene-scale{ transform:scale(1); }
+
+  .sky{
+    position:absolute; inset:0;
+    background:linear-gradient(180deg,
+      var(--sky-top) 0%,
+      var(--sky-mid) 42%,
+      var(--sky-horizon-2) 78%,
+      var(--sky-horizon) 100%);
+  }
+
+  .hills{ position:absolute; left:0; width:100%; pointer-events:none; }
+  .hills-far{ bottom:16svh; height:34svh; opacity:.85; }
+  .hills-near{ bottom:9svh; height:26svh; }
+  .hills svg{ display:block; width:100%; height:100%; }
+
+  /* ---------- Floating leaves: ambient particles rising through the scene ---------- */
+  .leaves{ position:absolute; inset:0; pointer-events:none; }
+  .leaf-particle{
+    position:absolute;
+    bottom:-8vh;
+    width:16px; height:16px;
+    opacity:0;
+    animation-name:leaf-float;
+    animation-timing-function:ease-in-out;
+    animation-iteration-count:infinite;
+  }
+  .leaf-particle svg{ width:100%; height:100%; display:block; }
+  @keyframes leaf-float{
+    0%   { transform:translate(0,0) rotate(0deg);      opacity:0; }
+    8%   { opacity:.7; }
+    50%  { transform:translate(24px,-55vh) rotate(160deg); }
+    92%  { opacity:.5; }
+    100% { transform:translate(-16px,-108vh) rotate(320deg); opacity:0; }
+  }
+
+  /* ---------- Ground: foreground row of nursery pots + a young tree ---------- */
+  .ground{
+    position:absolute; left:0; bottom:0; width:100%;
+    height:min(30svh, 300px);
+    min-height:150px;
+    z-index:1;
+  }
+  .ground svg{ display:block; width:100%; height:100%; }
+
+  .near-fade{
+    position:absolute; left:0; bottom:0; width:100%; height:10svh; min-height:60px;
+    z-index:2; pointer-events:none;
+    background:linear-gradient(to top, rgba(4,7,5,.55), rgba(4,7,5,0));
+  }
+
+  .vignette{
+    position:fixed; inset:0; z-index:3; pointer-events:none;
+    background:
+      radial-gradient(ellipse 85% 70% at 50% 55%, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 100%),
+      rgba(0,0,0,.12);
+  }
+
+  /* fine grain, mirrors the ground texture trick: breaks up flat gradients */
+  .grain{
+    position:fixed; inset:0; z-index:4; pointer-events:none; opacity:.05;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:120px 120px;
+  }
+
+  /* ---------- Content ---------- */
+  .content-wrap{
+    position:relative; z-index:5;
+    min-height:100svh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding:8svh 20px 6svh;
+    gap:clamp(10px, 2svh, 22px);
+  }
+
+  .wordmark{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(2.4rem, 7vw, 5rem);
+    line-height:1.05;
+    color:var(--cream);
+    text-shadow:0 2px 24px rgba(0,0,0,.45);
+    opacity:0; transform:translateY(16px);
+    transition:opacity 1s ease .65s, transform 1s cubic-bezier(.22,1,.36,1) .65s;
+  }
+  body.revealed .wordmark{ opacity:1; transform:translateY(0); }
+  .wordmark em{
+    font-style:italic; font-weight:500; color:var(--gold);
+  }
+
+  .tagline{
+    font-family:'Jost', sans-serif;
+    font-weight:500;
+    font-size:clamp(.85rem, 1.6vw, 1.15rem);
+    letter-spacing:.35em;
+    text-transform:uppercase;
+    color:var(--gold);
+    text-shadow:0 0 26px var(--gold-soft);
+    opacity:0; transform:translateY(14px);
+    transition:opacity 1s ease .95s, transform 1s cubic-bezier(.22,1,.36,1) .95s;
+  }
+  body.revealed .tagline{ opacity:1; transform:translateY(0); }
+
+  .subtext{
+    max-width:36em;
+    font-size:clamp(.9rem, 1.4vw, 1.05rem);
+    font-weight:300;
+    color:var(--cream-dim);
+    line-height:1.6;
+    opacity:0; transform:translateY(12px);
+    transition:opacity 1s ease 1.15s, transform 1s cubic-bezier(.22,1,.36,1) 1.15s;
+  }
+  body.revealed .subtext{ opacity:1; transform:translateY(0); }
+
+  .form-wrap{
+    width:100%; max-width:420px;
+    opacity:0; transform:translateY(12px);
+    transition:opacity 1s ease 1.35s, transform 1s cubic-bezier(.22,1,.36,1) 1.35s;
+  }
+  body.revealed .form-wrap{ opacity:1; transform:translateY(0); }
+
+  .notify-form{
+    display:flex; align-items:center; gap:6px;
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(247,241,226,.18);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border-radius:999px;
+    padding:6px 6px 6px 20px;
+    transition:border-color .3s ease, box-shadow .3s ease;
+  }
+  .notify-form:focus-within{
+    border-color:var(--gold-soft);
+    box-shadow:0 0 0 4px rgba(227,177,101,.12);
+  }
+  .notify-form input{
+    flex:1; min-width:0;
+    background:none; border:none; outline:none;
+    font-family:'Jost', sans-serif; font-size:.95rem;
+    color:var(--cream);
+    padding:10px 0;
+  }
+  .notify-form input::placeholder{ color:rgba(247,241,226,.45); }
+  .notify-form button{
+    flex-shrink:0;
+    font-family:'Jost', sans-serif; font-weight:500; font-size:.85rem;
+    letter-spacing:.04em;
+    color:#0c130d;
+    background:linear-gradient(135deg, var(--gold), var(--sky-horizon-2));
+    border:none; border-radius:999px;
+    padding:11px 22px;
+    cursor:pointer;
+    transition:transform .25s ease, box-shadow .25s ease, filter .25s ease;
+  }
+  .notify-form button:hover{ filter:brightness(1.08); box-shadow:0 4px 18px rgba(227,177,101,.35); }
+  .notify-form button:active{ transform:scale(.96); }
+
+  .form-note{
+    margin-top:10px;
+    font-size:.75rem;
+    color:rgba(247,241,226,.45);
+  }
+
+  .success-msg{
+    display:none;
+    align-items:center; justify-content:center; gap:10px;
+    padding:14px 20px;
+    border-radius:999px;
+    background:rgba(227,177,101,.1);
+    border:1px solid rgba(227,177,101,.3);
+    color:var(--gold);
+    font-size:.9rem;
+  }
+  .success-msg svg{ width:18px; height:18px; flex-shrink:0; }
+  .form-wrap.submitted .notify-form,
+  .form-wrap.submitted .form-note{ display:none; }
+  .form-wrap.submitted .success-msg{ display:flex; }
+
+  .social-row{
+    display:flex; gap:14px;
+    opacity:0; transform:translateY(10px);
+    transition:opacity 1s ease 1.55s, transform 1s cubic-bezier(.22,1,.36,1) 1.55s;
+  }
+  body.revealed .social-row{ opacity:1; transform:translateY(0); }
+
+  .social-row a{
+    display:flex; align-items:center; justify-content:center;
+    width:40px; height:40px;
+    border-radius:50%;
+    border:1px solid rgba(247,241,226,.22);
+    color:var(--cream-dim);
+    transition:transform .25s ease, border-color .25s ease, color .25s ease, box-shadow .25s ease;
+  }
+  .social-row a:hover{
+    transform:translateY(-3px);
+    border-color:var(--gold);
+    color:var(--gold);
+    box-shadow:0 6px 20px rgba(227,177,101,.2);
+  }
+  .social-row svg{ width:17px; height:17px; }
+
+  footer{
+    position:relative; z-index:5;
+    text-align:center;
+    padding:0 20px 4svh;
+    font-size:.75rem;
+    color:rgba(247,241,226,.4);
+    opacity:0;
+    transition:opacity 1s ease 1.75s;
+  }
+  body.revealed footer{ opacity:1; }
+
+  @media (orientation:portrait){
+    .ground{ height:min(24svh,240px); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .scene-scale, .wordmark, .tagline, .subtext, .form-wrap, .social-row, footer{
+      transition-duration:.25s !important;
+      transition-delay:0s !important;
+    }
+    .leaf-particle{ animation:none !important; }
+    .scene-scale{ transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="stage">
+    <div class="scene-scale">
+      <div class="sky"></div>
+      <div class="hills hills-far">
+        <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+          <path d="M0,180 C160,120 320,200 480,160 C640,120 800,190 960,150 C1120,110 1280,170 1440,140 L1440,320 L0,320 Z" fill="#2c4234"></path>
+        </svg>
+      </div>
+      <div class="hills hills-near">
+        <svg viewBox="0 0 1440 260" preserveAspectRatio="none">
+          <path d="M0,140 C200,90 380,170 600,120 C820,70 1000,160 1220,110 C1320,90 1380,120 1440,100 L1440,260 L0,260 Z" fill="#182b1d"></path>
+        </svg>
+      </div>
+
+      <div class="leaves" id="leaves"></div>
+
+      <div class="ground">
+        <svg viewBox="0 0 1440 260" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="potGrad" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stop-color="#5c3320"></stop>
+              <stop offset="1" stop-color="#8a4f30"></stop>
+            </linearGradient>
+            <linearGradient id="leafGrad" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stop-color="#16281a"></stop>
+              <stop offset="1" stop-color="#3c5f3f"></stop>
+            </linearGradient>
+            <symbol id="potBush" viewBox="0 0 120 160">
+              <path d="M30,160 L20,95 H100 L90,160 Z" fill="url(#potGrad)"></path>
+              <circle cx="60" cy="70" r="34" fill="url(#leafGrad)"></circle>
+              <circle cx="34" cy="85" r="22" fill="url(#leafGrad)"></circle>
+              <circle cx="86" cy="85" r="22" fill="url(#leafGrad)"></circle>
+            </symbol>
+            <symbol id="potGrass" viewBox="0 0 120 160">
+              <path d="M32,160 L24,110 H96 L88,160 Z" fill="url(#potGrad)"></path>
+              <path d="M60,112 C40,90 30,50 38,10 C50,45 55,80 60,112 Z" fill="url(#leafGrad)"></path>
+              <path d="M60,112 C62,80 75,40 96,14 C86,55 74,90 60,112 Z" fill="url(#leafGrad)"></path>
+              <path d="M60,112 C50,80 44,45 52,8 C60,42 62,80 60,112 Z" fill="url(#leafGrad)"></path>
+            </symbol>
+            <symbol id="youngTree" viewBox="0 0 180 260">
+              <rect x="84" y="150" width="12" height="90" fill="#3a2417"></rect>
+              <circle cx="90" cy="95" r="58" fill="url(#leafGrad)"></circle>
+              <circle cx="48" cy="120" r="38" fill="url(#leafGrad)"></circle>
+              <circle cx="132" cy="120" r="38" fill="url(#leafGrad)"></circle>
+            </symbol>
+          </defs>
+
+          <use href="#potGrass" x="0"    y="60"  width="110" height="160"></use>
+          <use href="#potBush"  x="120"  y="70"  width="130" height="160"></use>
+          <use href="#potGrass" x="270"  y="50"  width="100" height="160"></use>
+          <use href="#potBush"  x="380"  y="80"  width="110" height="160"></use>
+          <use href="#youngTree" x="560" y="0"   width="260" height="260"></use>
+          <use href="#potBush"  x="840"  y="80"  width="110" height="160"></use>
+          <use href="#potGrass" x="960"  y="50"  width="100" height="160"></use>
+          <use href="#potBush"  x="1080" y="70"  width="130" height="160"></use>
+          <use href="#potGrass" x="1230" y="60"  width="110" height="160"></use>
+          <use href="#potBush"  x="1340" y="75"  width="110" height="160"></use>
+        </svg>
+      </div>
+      <div class="near-fade"></div>
+    </div>
+
+    <div class="vignette"></div>
+    <div class="grain"></div>
+  </div>
+
+  <div class="content-wrap">
+    <!-- EDIT: swap in your real business name -->
+    <h1 class="wordmark">Hasiru <em>Haadi</em></h1>
+
+    <p class="tagline">Coming Soon</p>
+
+    <p class="subtext">
+      We're cultivating something beautiful — a home for rare plants, garden
+      essentials and green-thumbed advice. Leave your email and we'll let you
+      know the moment our doors open.
+    </p>
+
+    <div class="form-wrap" id="formWrap">
+      <!-- EDIT: point this at your real signup endpoint (Mailchimp, ConvertKit, your own API, etc.) -->
+      <form class="notify-form" id="notifyForm" novalidate>
+        <input type="email" id="emailInput" placeholder="Your email address" autocomplete="email" required>
+        <button type="submit">Notify Me</button>
+      </form>
+      <p class="form-note">No spam — just one email when we open.</p>
+      <div class="success-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5"></path>
+        </svg>
+        <span>Thanks — we'll be in touch when we open.</span>
+      </div>
+    </div>
+
+    <div class="social-row">
+      <a href="#" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="3" width="18" height="18" rx="5"></rect>
+          <circle cx="12" cy="12" r="4"></circle>
+          <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle>
+        </svg>
+      </a>
+      <a href="#" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M15 8h-2a2 2 0 0 0-2 2v10M9 13h4"></path>
+          <path d="M15 8V5a1 1 0 0 0-1-1h-1a3 3 0 0 0-3 3v3"></path>
+        </svg>
+      </a>
+      <a href="#" aria-label="Pinterest">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M9 20c1-3 2-8 2-8m0 0c-1-2 0-5 2-5s2 2 1.5 4-1 4 1 4.5 4-1 4-5a6 6 0 1 0-10.5 4"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <span id="year"></span> Hasiru Haadi. All rights reserved.
+  </footer>
+
+<script>
+(function () {
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Scatter floating leaf particles across the width, each on its own
+  // timing so they don't all rise in lockstep.
+  var LEAF_PATH = 'M50,95 C10,80 10,20 50,5 C90,20 90,80 50,95 Z';
+  var leafLayer = document.getElementById('leaves');
+  var leafCount = matchMedia('(max-width: 700px)').matches ? 7 : 12;
+  for (var i = 0; i < leafCount; i++) {
+    var leaf = document.createElement('div');
+    leaf.className = 'leaf-particle';
+    leaf.style.left = (Math.random() * 96 + 2) + '%';
+    leaf.style.width = leaf.style.height = (10 + Math.random() * 12) + 'px';
+    var duration = 20 + Math.random() * 16;
+    leaf.style.animationDuration = duration + 's';
+    leaf.style.animationDelay = (-Math.random() * duration) + 's';
+    leaf.innerHTML = '<svg viewBox="0 0 100 100"><path d="' + LEAF_PATH + '" fill="rgba(212,183,133,.55)"/></svg>';
+    leafLayer.appendChild(leaf);
+  }
+
+  // Two rAFs so the pre-reveal styles are painted at least once before the
+  // transitions that animate away from them are allowed to run.
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      document.body.classList.add('revealed');
+    });
+  });
+
+  var form = document.getElementById('notifyForm');
+  var formWrap = document.getElementById('formWrap');
+  var emailInput = document.getElementById('emailInput');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim());
+    if (!valid) {
+      emailInput.focus();
+      return;
+    }
+    // No backend wired up yet — this just confirms the interaction.
+    // Replace with a real fetch() to your signup endpoint when ready.
+    formWrap.classList.add('submitted');
+  });
+})();
+</script>
+</body>
+</html>
