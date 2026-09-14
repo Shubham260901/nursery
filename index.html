@@ -13,20 +13,11 @@
   :root{
     color-scheme: dark;
     --bg:#0c130d;
-    --sky-top:#122018;
-    --sky-mid:#3f5b3a;
-    --sky-horizon:#f0c988;
     --sky-horizon-2:#e2a15b;
     --cream:#f7f1e2;
     --cream-dim:rgba(247,241,226,.72);
     --gold:#e3b165;
     --gold-soft:rgba(227,177,101,.35);
-    --leaf-dark:#16281a;
-    --leaf-light:#3c5f3f;
-    --hill-far:#2c4234;
-    --hill-near:#182b1d;
-    --pot-dark:#5c3320;
-    --pot-light:#8a4f30;
   }
 
   *{ margin:0; padding:0; box-sizing:border-box; }
@@ -39,79 +30,24 @@
     overflow-x:hidden;
   }
 
-  /* ---------- Scene: fixed, full-bleed backdrop behind the content ---------- */
-  .stage{ position:fixed; inset:0; z-index:0; overflow:hidden; }
-
-  .scene-scale{
-    position:absolute; inset:0;
-    transform:scale(1.06);
-    transition:transform 1.9s cubic-bezier(.16,.84,.3,1);
-    will-change:transform;
+  /* ---------- Background: the watering-can loop, cover-fit and pinned ---------- */
+  .bg-media{
+    position:fixed; inset:0; z-index:0;
+    background-image:url('assets/hero-bg.webp');
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
   }
-  body.revealed .scene-scale{ transform:scale(1); }
-
-  .sky{
-    position:absolute; inset:0;
-    background:linear-gradient(180deg,
-      var(--sky-top) 0%,
-      var(--sky-mid) 42%,
-      var(--sky-horizon-2) 78%,
-      var(--sky-horizon) 100%);
-  }
-
-  .hills{ position:absolute; left:0; width:100%; pointer-events:none; }
-  .hills-far{ bottom:16svh; height:34svh; opacity:.85; }
-  .hills-near{ bottom:9svh; height:26svh; }
-  .hills svg{ display:block; width:100%; height:100%; }
-
-  /* ---------- Floating leaves: ambient particles rising through the scene ---------- */
-  .leaves{ position:absolute; inset:0; pointer-events:none; }
-  .leaf-particle{
-    position:absolute;
-    bottom:-8vh;
-    width:16px; height:16px;
-    opacity:0;
-    animation-name:leaf-float;
-    animation-timing-function:ease-in-out;
-    animation-iteration-count:infinite;
-  }
-  .leaf-particle svg{ width:100%; height:100%; display:block; }
-  @keyframes leaf-float{
-    0%   { transform:translate(0,0) rotate(0deg);      opacity:0; }
-    8%   { opacity:.7; }
-    50%  { transform:translate(24px,-55vh) rotate(160deg); }
-    92%  { opacity:.5; }
-    100% { transform:translate(-16px,-108vh) rotate(320deg); opacity:0; }
-  }
-
-  /* ---------- Ground: foreground row of nursery pots + a young tree ---------- */
-  .ground{
-    position:absolute; left:0; bottom:0; width:100%;
-    height:min(30svh, 300px);
-    min-height:150px;
-    z-index:1;
-  }
-  .ground svg{ display:block; width:100%; height:100%; }
-
-  .near-fade{
-    position:absolute; left:0; bottom:0; width:100%; height:10svh; min-height:60px;
-    z-index:2; pointer-events:none;
-    background:linear-gradient(to top, rgba(4,7,5,.55), rgba(4,7,5,0));
-  }
-
-  .vignette{
-    position:fixed; inset:0; z-index:3; pointer-events:none;
+  /* The loop cycles through many different compositions (wide shots,
+     close-up flowers, bright highlights), so there's no single "safe"
+     patch to dodge — instead a fairly even scrim, strongest right
+     behind the centred text, holds contrast against whatever frame
+     happens to be playing. */
+  .bg-scrim{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
     background:
-      radial-gradient(ellipse 85% 70% at 50% 55%, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 100%),
-      rgba(0,0,0,.12);
-  }
-
-  /* fine grain, mirrors the ground texture trick: breaks up flat gradients */
-  .grain{
-    position:fixed; inset:0; z-index:4; pointer-events:none; opacity:.05;
-    mix-blend-mode:overlay;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size:120px 120px;
+      radial-gradient(ellipse 65% 58% at 50% 46%, rgba(6,10,7,.66) 0%, rgba(6,10,7,.42) 65%, rgba(6,10,7,.4) 100%),
+      rgba(6,10,7,.32);
   }
 
   /* ---------- Content ---------- */
@@ -124,19 +60,46 @@
     gap:clamp(10px, 2svh, 22px);
   }
 
+  /* Extruded 3D depth built from fine 0.5px steps rather than the old
+     blocky 1px jumps — enough layers that the bevel reads as a smooth
+     rounded edge instead of stair-steps — finishing in soft blurred
+     shadows that ground the letters into the blurred photo. */
   .wordmark{
     font-family:'Fraunces', serif;
     font-weight:600;
     font-size:clamp(2.4rem, 7vw, 5rem);
     line-height:1.05;
     color:var(--cream);
-    text-shadow:0 2px 24px rgba(0,0,0,.45);
+    -webkit-text-stroke:0.5px rgba(40,26,10,.25);
+    text-shadow:
+      0.5px 0.5px 0 #f0e6cd,
+      1px 1px 0 #e6d7b3,
+      1.5px 1.5px 0 #dcc99a,
+      2px 2px 0 #d2ba81,
+      2.5px 2.5px 0 #c7ac6c,
+      3px 3px 0 #b99a58,
+      3.5px 3.5px 1px rgba(35,23,9,.55),
+      0 9px 18px rgba(0,0,0,.48),
+      0 24px 48px rgba(0,0,0,.38);
     opacity:0; transform:translateY(16px);
     transition:opacity 1s ease .65s, transform 1s cubic-bezier(.22,1,.36,1) .65s;
   }
   body.revealed .wordmark{ opacity:1; transform:translateY(0); }
   .wordmark em{
-    font-style:italic; font-weight:500; color:var(--gold);
+    font-style:italic; font-weight:500;
+    background:linear-gradient(180deg, #fff3d6 0%, #f0c384 40%, var(--gold) 68%, #d99a52 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    -webkit-text-stroke:0.5px rgba(60,36,10,.3);
+    text-shadow:
+      0.5px 0.5px 0 rgba(255,230,168,.9),
+      1px 1px 0 rgba(240,201,130,.9),
+      1.5px 1.5px 0 rgba(214,167,96,.85),
+      2px 2px 0 rgba(188,133,66,.82),
+      2.5px 2.5px 0 rgba(157,101,42,.8),
+      3px 3px 1px rgba(84,50,16,.6),
+      0 9px 18px rgba(0,0,0,.48),
+      0 24px 48px rgba(0,0,0,.32),
+      0 0 34px rgba(227,177,101,.25);
   }
 
   .tagline{
@@ -146,7 +109,11 @@
     letter-spacing:.35em;
     text-transform:uppercase;
     color:var(--gold);
-    text-shadow:0 0 26px var(--gold-soft);
+    text-shadow:
+      1px 1px 0 rgba(139,88,36,.6),
+      2px 2px 2px rgba(20,14,6,.45),
+      0 6px 16px rgba(0,0,0,.4),
+      0 0 26px var(--gold-soft);
     opacity:0; transform:translateY(14px);
     transition:opacity 1s ease .95s, transform 1s cubic-bezier(.22,1,.36,1) .95s;
   }
@@ -155,9 +122,13 @@
   .subtext{
     max-width:36em;
     font-size:clamp(.9rem, 1.4vw, 1.05rem);
-    font-weight:300;
-    color:var(--cream-dim);
+    font-weight:400;
+    color:#fff;
     line-height:1.6;
+    text-shadow:
+      1px 1px 0 rgba(184,153,97,.55),
+      2px 2px 3px rgba(10,8,4,.6),
+      0 6px 16px rgba(0,0,0,.55);
     opacity:0; transform:translateY(12px);
     transition:opacity 1s ease 1.15s, transform 1s cubic-bezier(.22,1,.36,1) 1.15s;
   }
@@ -172,12 +143,13 @@
 
   .notify-form{
     display:flex; align-items:center; gap:6px;
-    background:rgba(255,255,255,.07);
-    border:1px solid rgba(247,241,226,.18);
-    backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);
+    background:rgba(8,12,8,.55);
+    border:1px solid rgba(247,241,226,.22);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
     border-radius:999px;
     padding:6px 6px 6px 20px;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
     transition:border-color .3s ease, box-shadow .3s ease;
   }
   .notify-form:focus-within{
@@ -227,121 +199,30 @@
   .form-wrap.submitted .form-note{ display:none; }
   .form-wrap.submitted .success-msg{ display:flex; }
 
-  .social-row{
-    display:flex; gap:14px;
-    opacity:0; transform:translateY(10px);
-    transition:opacity 1s ease 1.55s, transform 1s cubic-bezier(.22,1,.36,1) 1.55s;
-  }
-  body.revealed .social-row{ opacity:1; transform:translateY(0); }
-
-  .social-row a{
-    display:flex; align-items:center; justify-content:center;
-    width:40px; height:40px;
-    border-radius:50%;
-    border:1px solid rgba(247,241,226,.22);
-    color:var(--cream-dim);
-    transition:transform .25s ease, border-color .25s ease, color .25s ease, box-shadow .25s ease;
-  }
-  .social-row a:hover{
-    transform:translateY(-3px);
-    border-color:var(--gold);
-    color:var(--gold);
-    box-shadow:0 6px 20px rgba(227,177,101,.2);
-  }
-  .social-row svg{ width:17px; height:17px; }
-
   footer{
     position:relative; z-index:5;
     text-align:center;
     padding:0 20px 4svh;
     font-size:.75rem;
-    color:rgba(247,241,226,.4);
+    color:rgba(247,241,226,.55);
+    text-shadow:0 1px 6px rgba(0,0,0,.65);
     opacity:0;
     transition:opacity 1s ease 1.75s;
   }
   body.revealed footer{ opacity:1; }
 
-  @media (orientation:portrait){
-    .ground{ height:min(24svh,240px); }
-  }
-
   @media (prefers-reduced-motion: reduce){
-    .scene-scale, .wordmark, .tagline, .subtext, .form-wrap, .social-row, footer{
+    .wordmark, .tagline, .subtext, .form-wrap, footer{
       transition-duration:.25s !important;
       transition-delay:0s !important;
     }
-    .leaf-particle{ animation:none !important; }
-    .scene-scale{ transform:none !important; }
   }
 </style>
 </head>
 <body>
 
-  <div class="stage">
-    <div class="scene-scale">
-      <div class="sky"></div>
-      <div class="hills hills-far">
-        <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
-          <path d="M0,180 C160,120 320,200 480,160 C640,120 800,190 960,150 C1120,110 1280,170 1440,140 L1440,320 L0,320 Z" fill="#2c4234"></path>
-        </svg>
-      </div>
-      <div class="hills hills-near">
-        <svg viewBox="0 0 1440 260" preserveAspectRatio="none">
-          <path d="M0,140 C200,90 380,170 600,120 C820,70 1000,160 1220,110 C1320,90 1380,120 1440,100 L1440,260 L0,260 Z" fill="#182b1d"></path>
-        </svg>
-      </div>
-
-      <div class="leaves" id="leaves"></div>
-
-      <div class="ground">
-        <svg viewBox="0 0 1440 260" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="potGrad" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0" stop-color="#5c3320"></stop>
-              <stop offset="1" stop-color="#8a4f30"></stop>
-            </linearGradient>
-            <linearGradient id="leafGrad" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0" stop-color="#16281a"></stop>
-              <stop offset="1" stop-color="#3c5f3f"></stop>
-            </linearGradient>
-            <symbol id="potBush" viewBox="0 0 120 160">
-              <path d="M30,160 L20,95 H100 L90,160 Z" fill="url(#potGrad)"></path>
-              <circle cx="60" cy="70" r="34" fill="url(#leafGrad)"></circle>
-              <circle cx="34" cy="85" r="22" fill="url(#leafGrad)"></circle>
-              <circle cx="86" cy="85" r="22" fill="url(#leafGrad)"></circle>
-            </symbol>
-            <symbol id="potGrass" viewBox="0 0 120 160">
-              <path d="M32,160 L24,110 H96 L88,160 Z" fill="url(#potGrad)"></path>
-              <path d="M60,112 C40,90 30,50 38,10 C50,45 55,80 60,112 Z" fill="url(#leafGrad)"></path>
-              <path d="M60,112 C62,80 75,40 96,14 C86,55 74,90 60,112 Z" fill="url(#leafGrad)"></path>
-              <path d="M60,112 C50,80 44,45 52,8 C60,42 62,80 60,112 Z" fill="url(#leafGrad)"></path>
-            </symbol>
-            <symbol id="youngTree" viewBox="0 0 180 260">
-              <rect x="84" y="150" width="12" height="90" fill="#3a2417"></rect>
-              <circle cx="90" cy="95" r="58" fill="url(#leafGrad)"></circle>
-              <circle cx="48" cy="120" r="38" fill="url(#leafGrad)"></circle>
-              <circle cx="132" cy="120" r="38" fill="url(#leafGrad)"></circle>
-            </symbol>
-          </defs>
-
-          <use href="#potGrass" x="0"    y="60"  width="110" height="160"></use>
-          <use href="#potBush"  x="120"  y="70"  width="130" height="160"></use>
-          <use href="#potGrass" x="270"  y="50"  width="100" height="160"></use>
-          <use href="#potBush"  x="380"  y="80"  width="110" height="160"></use>
-          <use href="#youngTree" x="560" y="0"   width="260" height="260"></use>
-          <use href="#potBush"  x="840"  y="80"  width="110" height="160"></use>
-          <use href="#potGrass" x="960"  y="50"  width="100" height="160"></use>
-          <use href="#potBush"  x="1080" y="70"  width="130" height="160"></use>
-          <use href="#potGrass" x="1230" y="60"  width="110" height="160"></use>
-          <use href="#potBush"  x="1340" y="75"  width="110" height="160"></use>
-        </svg>
-      </div>
-      <div class="near-fade"></div>
-    </div>
-
-    <div class="vignette"></div>
-    <div class="grain"></div>
-  </div>
+  <div class="bg-media"></div>
+  <div class="bg-scrim"></div>
 
   <div class="content-wrap">
     <!-- EDIT: swap in your real business name -->
@@ -370,26 +251,6 @@
       </div>
     </div>
 
-    <div class="social-row">
-      <a href="#" aria-label="Instagram">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <rect x="3" y="3" width="18" height="18" rx="5"></rect>
-          <circle cx="12" cy="12" r="4"></circle>
-          <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle>
-        </svg>
-      </a>
-      <a href="#" aria-label="Facebook">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M15 8h-2a2 2 0 0 0-2 2v10M9 13h4"></path>
-          <path d="M15 8V5a1 1 0 0 0-1-1h-1a3 3 0 0 0-3 3v3"></path>
-        </svg>
-      </a>
-      <a href="#" aria-label="Pinterest">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M9 20c1-3 2-8 2-8m0 0c-1-2 0-5 2-5s2 2 1.5 4-1 4 1 4.5 4-1 4-5a6 6 0 1 0-10.5 4"></path>
-        </svg>
-      </a>
-    </div>
   </div>
 
   <footer>
@@ -399,23 +260,6 @@
 <script>
 (function () {
   document.getElementById('year').textContent = new Date().getFullYear();
-
-  // Scatter floating leaf particles across the width, each on its own
-  // timing so they don't all rise in lockstep.
-  var LEAF_PATH = 'M50,95 C10,80 10,20 50,5 C90,20 90,80 50,95 Z';
-  var leafLayer = document.getElementById('leaves');
-  var leafCount = matchMedia('(max-width: 700px)').matches ? 7 : 12;
-  for (var i = 0; i < leafCount; i++) {
-    var leaf = document.createElement('div');
-    leaf.className = 'leaf-particle';
-    leaf.style.left = (Math.random() * 96 + 2) + '%';
-    leaf.style.width = leaf.style.height = (10 + Math.random() * 12) + 'px';
-    var duration = 20 + Math.random() * 16;
-    leaf.style.animationDuration = duration + 's';
-    leaf.style.animationDelay = (-Math.random() * duration) + 's';
-    leaf.innerHTML = '<svg viewBox="0 0 100 100"><path d="' + LEAF_PATH + '" fill="rgba(212,183,133,.55)"/></svg>';
-    leafLayer.appendChild(leaf);
-  }
 
   // Two rAFs so the pre-reveal styles are painted at least once before the
   // transitions that animate away from them are allowed to run.
